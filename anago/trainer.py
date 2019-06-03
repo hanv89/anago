@@ -39,7 +39,7 @@ class Trainer(object):
 
         train_seq = NERSequence(x_train, y_train, batch_size, self._preprocessor.transform)
 
-        if x_valid and y_valid:
+        if (x_valid is not None) and (y_valid is not None):
             valid_seq = NERSequence(x_valid, y_valid, batch_size, self._preprocessor.transform)
             f1 = F1score(valid_seq, preprocessor=self._preprocessor)
             callbacks = [f1] + callbacks if callbacks else [f1]

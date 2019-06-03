@@ -8,6 +8,7 @@ from anago.preprocessing import IndexTransformer
 from anago.tagger import Tagger
 from anago.trainer import Trainer
 from anago.utils import filter_embeddings
+from anago.callbacks import ModelCheckpoint
 
 
 class Sequence(object):
@@ -65,6 +66,11 @@ class Sequence(object):
         p.fit(x_train, y_train)
         embeddings = filter_embeddings(self.embeddings, p._word_vocab.vocab, self.word_embedding_dim)
 
+        if callbacks is not None:
+            for callback in callbacks:
+                if isinstance(callback, ModelCheckpoint):
+                    callback.p = p
+
         model = BiLSTMCRF(char_vocab_size=p.char_vocab_size,
                           word_vocab_size=p.word_vocab_size,
                           num_labels=p.label_size,
@@ -89,6 +95,10 @@ class Sequence(object):
         self.p = p
         self.model = model
 
+    def _make_predict_function(self):
+        if self.model:
+            self.model._make_predict_function()
+
     def predict(self, x_test):
         """Returns the prediction of the model on the given test data.
 
@@ -108,7 +118,7 @@ class Sequence(object):
             return y_pred 
         else:
             raise OSError('Could not find a model. Call load(dir_path).')
-
+    
     def score(self, x_test, y_test):
         """Returns the f1-micro score on the given test data and labels.
 
