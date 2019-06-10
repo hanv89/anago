@@ -2,6 +2,7 @@
 Custom callbacks.
 """
 import os
+import json
 import pathlib
 import numpy as np
 from keras.callbacks import Callback
